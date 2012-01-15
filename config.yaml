@@ -1,0 +1,17 @@
+--- 
+config_files:
+	"sudo::nginx/brettnak.com.conf"
+		"/etc/nginx/sites-availabl/brettnak.com.conf"
+	"sudo::nginx/thecarelesslovers.com.conf":
+		"/etc/nginx/sites-availabl/thecarelesslovers.com.conf"
+	"sudo::nginx/nginx.conf":
+		"/etc/nginx/nginx.conf"
+
+working_server_directory:
+	"/home/brettnak/configuration"
+
+repository_url:
+	"https://brettnak@github.com/brettnak/BrettnakServer.git"
+
+host: thecarelesslovers.com
+user: brettnak
