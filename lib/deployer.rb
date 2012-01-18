@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'net/ssh'
 require 'highline'
 require 'yaml'
@@ -16,6 +18,7 @@ module Chair
   end
 
   class RemoteFileUtils
+
     def self.copy( from, to, options = {} )
       flags = options[:flags] || ""
 
@@ -24,6 +27,13 @@ module Chair
       else
         options[:session].run( "cp #{flags} #{from}  #{to}" )
       end
+    end
+
+    def self.link( target, destination, options )
+      con_type = options[:sudo] ? :sudo : :run
+
+      cmd = "ln -s #{target} #{destination}"
+      options[:session].send( con_type, cmd )
     end
   end
 
@@ -40,7 +50,6 @@ module Chair
     def with_session
       if self.ssh_session.nil?
         self.ssh_session = Net::SSH.start( self.host, self.user, self.ssh_options )
-        self.ssh_session.loop
       end
 
       return self.ssh_session
@@ -55,7 +64,7 @@ module Chair
       with_session
 
       command = "sudo sh -c '#{command}'"
-      self.highline.say( "[COMMAND #{self.host}]: Executing: #{command}" )
+      self.highline.say( "\n[COMMAND #{self.host}]: Executing: #{command}" )
 
       self.ssh_session.open_channel do |channel|
         channel.request_pty
@@ -63,7 +72,7 @@ module Chair
         channel.exec( command ) do |channel, success|
 
           channel.on_extended_data do |ch, status, data|
-            if data =~ /password/ || data =~ /Sorry, try again/
+            if data =~ /password/i || data =~ /Sorry, try again/
               password = self.highline.ask("[PROMPT #{self.host}]: #{data} ") { |q| q.echo = false }
               ch.send_data( password + "\n" )
             else
@@ -73,43 +82,67 @@ module Chair
 
           channel.on_data do |ch, data|
             if data =~ /password/ || data =~ /Sorry, try again/
-              password = self.highline.ask("[PROMPT #{self.host}]: #{data} ") { |q| q.echo = false }
+              password = self.highline.ask("[PROMPT  #{self.host}]: #{data} ") { |q| q.echo = false }
               ch.send_data( password + "\n" )
             else
               self.highline.say("[STDOUT  #{self.host}]: #{data}" )
             end
+          end
+
+          channel.on_close do |ch|
+            # self.highline.say( "Channel Closing" )
           end
         end
 
         channel.wait
       end
 
-      self.highline.say("...done\n")
+      ssh_session.loop( 0.1 ) do
+        ssh_session.busy?
+      end
     end
 
     def run( command )
       with_session
 
       command = "sh -c '#{command}'"
-      self.highline.say( "[COMMAND #{self.host}] Executing: #{command}" )
+      self.highline.say( "\n[COMMAND #{self.host}]: Executing: #{command}" )
 
       ssh_session.open_channel do |channel|
         channel.request_pty
-        
+
         channel.exec( command ) do |channel, success|
+          raise StandardError, "Couldn't execute" unless success
+
           channel.on_extended_data do |ch, status, data|
-            self.highline.say("[ERROR  #{self.host}]: #{data}" )
+            if data =~ /password/i || data =~ /Sorry, try again/
+              password = self.highline.ask("[PROMPT  #{self.host}]: #{data} ") { |q| q.echo = false }
+              ch.send_data( password + "\n" )
+            else
+              self.highline.say("[ERROR  #{self.host}]: #{data}" )
+            end
           end
 
-          channel.on_data do |channel, data|
-            self.highline.say("[STDOUT  #{self.host}]: #{data}" )
+          channel.on_data do |ch, data|
+            if data =~ /password/i || data =~ /Sorry, try again/
+              password = self.highline.ask("[PROMPT  #{self.host}]: #{data} ") { |q| q.echo = false }
+              ch.send_data( password + "\n" )
+            else
+              self.highline.say("[STDOUT  #{self.host}]: #{data}" )
+            end
+          end
+
+          channel.on_close do |ch|
+            # self.highline.say( "Channel Closing" )
           end
         end
 
         channel.wait
       end
 
-      self.highline.say("...done\n")      
+      ssh_session.loop( 0.1 ) do
+        ssh_session.busy?
+      end
     end
 
     def close

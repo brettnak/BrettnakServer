@@ -1,11 +1,11 @@
 --- 
 config_files: 
 - from: nginx/brettnak.com.conf
-  to: /etc/nginx/sites-availabl/brettnak.com.conf
+  to: /etc/nginx/sites-available/brettnak.com.conf
   sudo: true
 
 - from: nginx/thecarelesslovers.com.conf
-  to: /etc/nginx/sites-availabl/thecarelesslovers.com.conf
+  to: /etc/nginx/sites-available/thecarelesslovers.com.conf
   sudo: true
 
 - from: nginx/nginx.conf

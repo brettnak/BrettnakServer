@@ -9,13 +9,30 @@ module Brettnak
     def deploy
       update_git
       copy_files
+      link_nginx_sites
       restart_all_server_processes
     end
 
     def restart_all_server_processes
-      session.sudo( "/usr/bin/nginx -s usr2" )
-      session.sudo( "kill -S USR2 `cat /tmp/thecarelesslovers-unicorn.pid`" )
-      session.sudo( "kill -S USR2 `cat /tmp/brettnak-unicorn.pid`" )
+      session.sudo( "kill -s USR2 `cat /tmp/nginx.pid`" )
+      session.sudo( "kill -s USR2 `cat /tmp/thecarelesslovers-unicorn.pid`" )
+      session.sudo( "kill -s USR2 `cat /tmp/brettnak-unicorn.pid`" )
+    end
+
+    def link_nginx_sites
+      Chair::RemoteFileUtils.link(
+        "/etc/nginx/sites-available/thecarelesslovers.com.conf",
+        "/etc/nginx/sites-enabled/thecarelesslovers.com.conf",
+        :sudo => true,
+        :session => self.session
+       )
+
+      Chair::RemoteFileUtils.link(
+        "/etc/nginx/sites-available/brettnak.com.conf",
+        "/etc/nginx/sites-enabled/brettnak.com.conf",
+        :sudo => true,
+        :session => self.session
+       )       
     end
 
     def copy_files
@@ -44,9 +61,20 @@ module Brettnak
     def update_git
       session.run( "cd #{config.working_server_directory} && git pull origin master" )
     end
+
+    def test
+      session.sudo( "echo \"ran as sudoer\"" )
+      session.run( "echo \"ran as user\"" )
+      session.close
+    end
   end
 end
 
 deployer = Brettnak::Deployer.new( "config.yaml" )
-cmd = ARGV[0]
+cmd = ARGV[0] || "deploy"
 deployer.__send__( cmd.to_sym )
+
+
+
+
+
