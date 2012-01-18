@@ -19,14 +19,16 @@ module Brettnak
     end
 
     def copy_files
-      self.config.config_files.each_pair do |from, to|
-        parts = from.split( "::" )
-        from  = "#{config.working_server_directory}/#{parts.last}"
+      self.config.config_files.each do |elem|
 
-        if parts.first == "sudo"
-          RemoteFileUtils.copy( from, to, :sudo => true, :flags => "-f" )
+        from  = "#{config.working_server_directory}/#{elem['from']}"
+        to    = elem['to']
+        sudo  = elem['sudo']
+
+        if sudo
+          Chair::RemoteFileUtils.copy( from, to, :session => self.session, :sudo => true, :flags => "-fv" )
         else
-          RemoteFileUtils.copy( from, to, :flags => "-f" )
+          Chair::RemoteFileUtils.copy( from, to, :session => self.session, :flags => "-fv" )
         end
       end
     end
@@ -36,11 +38,11 @@ module Brettnak
       session.run( "git clone #{config.repository_url} #{config.working_server_directory}" )
 
       # make sure this is setup
-      session.run( "cd #{working_server_directory} && git remote add origin #{config.repository_url}" )
+      session.run( "cd #{config.working_server_directory} && git remote add origin #{config.repository_url}" )
     end
 
     def update_git
-      session.run( "cd #{working_server_directory} && git pull origin master" )
+      session.run( "cd #{config.working_server_directory} && git pull origin master" )
     end
   end
 end

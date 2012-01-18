@@ -1,17 +1,18 @@
 --- 
-config_files:
-	"sudo::nginx/brettnak.com.conf"
-		"/etc/nginx/sites-availabl/brettnak.com.conf"
-	"sudo::nginx/thecarelesslovers.com.conf":
-		"/etc/nginx/sites-availabl/thecarelesslovers.com.conf"
-	"sudo::nginx/nginx.conf":
-		"/etc/nginx/nginx.conf"
+config_files: 
+- from: nginx/brettnak.com.conf
+  to: /etc/nginx/sites-availabl/brettnak.com.conf
+  sudo: true
 
-working_server_directory:
-	"/home/brettnak/configuration"
+- from: nginx/thecarelesslovers.com.conf
+  to: /etc/nginx/sites-availabl/thecarelesslovers.com.conf
+  sudo: true
 
-repository_url:
-	"https://brettnak@github.com/brettnak/BrettnakServer.git"
+- from: nginx/nginx.conf
+  to: /etc/nginx/nginx.conf
+  sudo: true
 
+working_server_directory: /home/brettnak/configuration
+repository_url: https://brettnak@github.com/brettnak/BrettnakServer.git
 host: thecarelesslovers.com
 user: brettnak
