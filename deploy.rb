@@ -16,7 +16,7 @@ module Brettnak
     def restart_all_server_processes
       session.sudo( "kill -s USR2 `cat /tmp/nginx.pid`" )
       session.sudo( "kill -s USR2 `cat /tmp/thecarelesslovers-unicorn.pid`" )
-      session.sudo( "kill -s USR2 `cat /tmp/brettnak-unicorn.pid`" )
+      # session.sudo( "kill -s USR2 `cat /tmp/brettnak-unicorn.pid`" )
     end
 
     def link_nginx_sites
@@ -27,12 +27,12 @@ module Brettnak
         :session => self.session
        )
 
-      Chair::RemoteFileUtils.link(
-        "/etc/nginx/sites-available/brettnak.com.conf",
-        "/etc/nginx/sites-enabled/brettnak.com.conf",
-        :sudo => true,
-        :session => self.session
-       )       
+      # Chair::RemoteFileUtils.link(
+      #   "/etc/nginx/sites-available/brettnak.com.conf",
+      #   "/etc/nginx/sites-enabled/brettnak.com.conf",
+      #   :sudo => true,
+      #   :session => self.session
+      #  )       
     end
 
     def copy_files

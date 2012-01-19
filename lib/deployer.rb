@@ -32,7 +32,7 @@ module Chair
     def self.link( target, destination, options )
       con_type = options[:sudo] ? :sudo : :run
 
-      cmd = "ln -s #{target} #{destination}"
+      cmd = "ln -sf #{target} #{destination}"
       options[:session].send( con_type, cmd )
     end
   end
