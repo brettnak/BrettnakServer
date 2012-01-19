@@ -20,7 +20,7 @@ module Brettnak
 
     def restart_all_server_processes
       session.sudo( "kill -s USR2 `cat /tmp/nginx.pid`" )
-      session.sudo( "kill -s USR2 `cat /tmp/thecarelesslovers-unicorn.pid`" )
+      # session.sudo( "kill -s USR2 `cat /tmp/thecarelesslovers-unicorn.pid`" )
       # session.sudo( "kill -s USR2 `cat /tmp/brettnak-unicorn.pid`" )
     end
 
