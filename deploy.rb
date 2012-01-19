@@ -11,6 +11,11 @@ module Brettnak
       copy_files
       link_nginx_sites
       restart_all_server_processes
+      check_syntax
+    end
+
+    def check_syntax
+      session.sudo( "nginx -t")
     end
 
     def restart_all_server_processes
