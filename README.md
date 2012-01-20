@@ -1,7 +1,7 @@
 # My Server Configuration
 ====
 
-Also has the ability to restart
+Sure I could have used capistrano or puppet or anything, but I really have only one server and I dislike how capistrano has some very strange bugs.  Specifically the one where :no_release doesn't always seem to work properly.
 
 ```
 ./deploy.rb [arg]
